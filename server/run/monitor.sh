@@ -6,22 +6,6 @@
 # monitor.sh must be in the same directory with the server    #
 #############################################################
 function sendSMS() {
-#HTTP_HOST="http://api.transformer.mogujie.org/sms/mandao"
-    HTTP_HOST="http://api.transformer.mogujie.org/sms/channel1"
-    AppKey='82785972c1939448'
-    InterFaceKey='mandao'
-#UserId="1,2,3,4,5"
-    UserId="1"
-#子烨、蓝狐、罗宁
-    Phone=("18806535140" "18657139120" "18668072662")
-    HostName=`hostname`
-    DirName=${PWD##*/}
-    Content='[TeamTalk] '$HostName' '$DirName' crash 【蘑菇街】'
-    CreateTime=`date +%s`000
-    for i in ${Phone[@]}
-    do
-        curl $HTTP_HOST -d "appKey=$AppKey&interfaceKey=$InterFaceKey&userId=$UserId&phone=$i&msg=$Content&submitTime=$CreateTime" > /dev/null 2>&1
-    done
 }
 
 function monitor() {
