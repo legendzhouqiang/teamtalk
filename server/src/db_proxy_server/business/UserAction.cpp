@@ -19,7 +19,6 @@
 #include "UserModel.h"
 #include "IM.Buddy.pb.h"
 #include "IM.BaseDefine.pb.h"
-#include "IM.BaseDefine.pb.h"
 
 
 namespace DB_PROXY {
