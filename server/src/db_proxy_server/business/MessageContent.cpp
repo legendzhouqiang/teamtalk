@@ -21,7 +21,6 @@
 #include "IM.Message.pb.h"
 #include "SessionModel.h"
 #include "RelationModel.h"
-#include "IM.XIAOT.pb.h"
 
 namespace DB_PROXY {
 

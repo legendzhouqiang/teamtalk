@@ -20,7 +20,6 @@
 #include "IM.Buddy.pb.h"
 #include "IM.BaseDefine.pb.h"
 #include "IM.BaseDefine.pb.h"
-#include "IM.Internal.pb.h"
 
 
 namespace DB_PROXY {

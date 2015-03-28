@@ -18,7 +18,6 @@
 #include "IM.Server.pb.h"
 #include "IM.SwitchService.pb.h"
 #include "IM.Group.pb.h"
-#include "IM.Internal.pb.h"
 #include <list>
 using namespace std;
 
