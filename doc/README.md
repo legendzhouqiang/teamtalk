@@ -1,6 +1,3 @@
-# 发布说明
-
-
 ## 1、依赖
 
 	服务端对pb,hiredis,mysql_client,log4cxx有依赖，所以服务端需要先安装pb，hiredis,mysql,log4cxx。
