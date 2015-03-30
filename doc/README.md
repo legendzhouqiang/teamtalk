@@ -30,3 +30,10 @@
 		nginx_php nginx php相关的部署及配置文件。
 		redis	redis相关的部署配置文件，redis建议部署主从，防止一台redis奔溃后一些信息的丢失，如果没有条件配置主从，请配置redis的持久化，具体教程请参考Google，但是配置持久化会降低redis的性能。建议配置主从。
 		setup.sh 是部署总入口，会分别调用二级目录下的setup.sh执行安装部署过程。
+
+## 5、试用包
+	试用包下载地址:
+	
+	Android:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Android.apk
+	Mac:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Mac.zip
+	Windows:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-win.zip

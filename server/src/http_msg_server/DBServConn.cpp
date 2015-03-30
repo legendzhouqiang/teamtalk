@@ -198,7 +198,6 @@ void CDBServConn::OnTimer(uint64_t curr_tick)
         pdu.SetCommandId(IM::BaseDefine::CID_OTHER_HEARTBEAT);
 		SendPdu(&pdu);
 	}
-    
 	if (curr_tick > m_last_recv_tick + SERVER_TIMEOUT) {
 		log("conn to db server timeout");
 		Close();
