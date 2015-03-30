@@ -36,4 +36,4 @@
 	
 	Android:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Android.apk
 	Mac:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Mac.zip
-	Windows:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Win.rar
+	Windows:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-win.zip
