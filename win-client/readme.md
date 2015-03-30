@@ -14,7 +14,7 @@ see all projects in our [mogutt](https://github.com/mogutt) github account page 
 * support permanent chat group created by administrators
 * support basic functions such as Emotion、Vibrating screen、File transfer and so on
 
-## How to bulid
+## How to bulid 
 * IDE : VS2013
 * Put the TTWinClient project with TTServer project under the same local path
 * the solution file relative path of TTWinClient is .\TTWinClient\solution\
