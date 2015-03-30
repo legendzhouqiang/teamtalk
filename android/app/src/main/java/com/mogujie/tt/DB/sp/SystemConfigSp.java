@@ -56,6 +56,17 @@ public class SystemConfigSp {
         //提交当前数据
         editor.commit();
     }
+    public int getIntConfig(String key) {
+        int strValue = sharedPreferences.getInt(key, 0);
+        return strValue;
+    }
+
+    public void setIntConfig(String key, int value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(key, value);
+        //提交当前数据
+        editor.commit();
+    }
 
     public enum SysCfgDimension {
         KEYBOARDHEIGHT,
