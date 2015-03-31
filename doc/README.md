@@ -34,6 +34,6 @@
 ## 5、试用包
 	试用包下载地址:
 	
-	Android:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Android.apk
+	Android:http://s8.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Android-0331.apk
 	Mac:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-Mac.zip
 	Windows:http://s21.mogucdn.com/download/TeamTalk/OpenSource/TeamTalk-win.zip

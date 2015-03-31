@@ -178,13 +178,19 @@ int32_t CTCPSessionAsync::SendMsgAsync( const char* szBuf, int32_t nBufSize )
         }
         else
         {
-            SOCKET_IO_DEBUG("send tcp data, push data to buffer.");
-            CBufferLoop* pBufferLoop = new CBufferLoop();
-            pBufferLoop->create_buffer(nBufSize);
-            pBufferLoop->append_buffer(szBuf, nBufSize);
-            m_sendqueue.push(pBufferLoop);
-            m_sendqueuemutex.Unlock();
+            if (m_sendqueue.size() >= MAX_SEND_QUEUE_SIZE) {
+                SOCKET_IO_WARN("send tcp data error, buffer is overload.");
+            }
+            else
+            {
+                SOCKET_IO_DEBUG("send tcp data, push data to buffer.");
+                CBufferLoop* pBufferLoop = new CBufferLoop();
+                pBufferLoop->create_buffer(nBufSize);
+                pBufferLoop->append_buffer(szBuf, nBufSize);
+                m_sendqueue.push(pBufferLoop);
+            }
         }
+        m_sendqueuemutex.Unlock();
         return nErrorCode;
     }
     m_sendqueuemutex.Unlock();
