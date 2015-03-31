@@ -230,13 +230,19 @@ int32_t CSSLClientAsync::SendMsgAsync(const char *szBuf, int32_t nBufSize)
         }
         else
         {
-            SOCKET_IO_DEBUG("send ssl data, push data to buffer.");
-            CBufferLoop* pBufferLoop = new CBufferLoop();
-            pBufferLoop->create_buffer(nBufSize);
-            pBufferLoop->append_buffer(szBuf, nBufSize);
-            m_sendqueue.push(pBufferLoop);
-            m_sendqueuemutex.Unlock();
+            if (m_sendqueue.size() >= MAX_SEND_QUEUE_SIZE) {
+                SOCKET_IO_WARN("send ssl data error, buffer is overload.");
+            }
+            else
+            {
+                SOCKET_IO_DEBUG("send ssl data, push data to buffer.");
+                CBufferLoop* pBufferLoop = new CBufferLoop();
+                pBufferLoop->create_buffer(nBufSize);
+                pBufferLoop->append_buffer(szBuf, nBufSize);
+                m_sendqueue.push(pBufferLoop);
+            }
         }
+        m_sendqueuemutex.Unlock();
         return SOCKET_IO_RESULT_OK;
     }
     m_sendqueuemutex.Unlock();
