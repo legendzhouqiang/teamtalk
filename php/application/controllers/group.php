@@ -96,7 +96,7 @@ class Group extends TT_Controller {
 	{
 		$id = $this->input->post('id');
 		$perpage = 10000;
-		$users = $this->grouprelation_model->getList(array('status'=>0,'id'=>$id), '*', 0, $perpage);
+		$users = $this->grouprelation_model->getList(array('status'=>0,'groupId'=>$id), '*', 0, $perpage);
 		foreach ($users as $key => $value) {
 			$_data = $this->user_model->getOne(array('id'=>$value['userId']));
 			$users[$key]['name'] = $_data['name'];
@@ -113,9 +113,9 @@ class Group extends TT_Controller {
 		$add = array(
 			'req_user_id'   => 0,
 			'app_key'       => 'asdfasdf',
-			'group_id'      => $this->input->post('id'),
-			'modify_type'   => $this->input->post('change'),
-			'user_id_list'  => array($this->input->post('userId'))
+			'group_id'      => intval($this->input->post('id')),
+			'modify_type'   => intval($this->input->post('change'),
+			'user_id_list'  => array(intval($this->input->post('userId')))
 		);                  
 	    $res = $this->httpRequest($this->config->config['http_url'].'/query/ChangeMembers','post',json_encode($add));
 	}
