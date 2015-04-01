@@ -114,7 +114,7 @@ class Group extends TT_Controller {
 			'req_user_id'   => 0,
 			'app_key'       => 'asdfasdf',
 			'group_id'      => intval($this->input->post('id')),
-			'modify_type'   => intval($this->input->post('change'),
+			'modify_type'   => intval($this->input->post('change')),
 			'user_id_list'  => array(intval($this->input->post('userId')))
 		);                  
 	    $res = $this->httpRequest($this->config->config['http_url'].'/query/ChangeMembers','post',json_encode($add));
