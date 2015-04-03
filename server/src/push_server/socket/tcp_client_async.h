@@ -18,7 +18,6 @@
 #include <queue>
 #include "../sigslot/sigslot.h"
 #include "../type/base_type.h"
-#include "../thread/base_thread.hpp"
 using namespace std;
 using namespace sigslot;
 
