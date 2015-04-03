@@ -197,7 +197,7 @@ namespace DB_PROXY {
                         
                     } else if(nMsgType == IM::BaseDefine::MSG_TYPE_SINGLE_AUDIO) {
                         
-                        if(nFromId == nToId)
+                        if(nFromId != nToId)
                         {
                             nSessionId = CSessionModel::getInstance()->getSessionId(nFromId, nToId, IM::BaseDefine::SESSION_TYPE_SINGLE, false);
                             if (INVALID_VALUE == nSessionId) {
