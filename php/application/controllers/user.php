@@ -94,6 +94,10 @@ class User extends TT_Controller {
 
 	public function edit()
 	{
+		$avatar = $this->input->post('avatar');
+		if(strpos($avatar, $this->config->config['msfs_url']) === false){
+			$avatar = $this->config->config['msfs_url'].$this->input->post('avatar');
+		}
 		$params = array(
 			'sex'=>$this->input->post('sex'),
 			'name'=>$this->input->post('name'),
@@ -101,7 +105,7 @@ class User extends TT_Controller {
 			'nick'=>$this->input->post('nick'),
 			'phone'=>$this->input->post('phone'),
 			'email'=>$this->input->post('email'),
-			'avatar'=>$this->config->config['msfs_url'].$this->input->post('avatar'),
+			'avatar'=>$avatar,
 			'departId'=>$this->input->post('departId'),
 			'status'=>$this->input->post('status'),
 			'updated'=>time()
