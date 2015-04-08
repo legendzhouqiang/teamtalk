@@ -196,6 +196,7 @@ int32_t CTCPClientAsync::SendMsgAsync(const char* szBuf, int32_t nBufSize )
                 pBufferLoop->create_buffer(nBufSize);
                 pBufferLoop->append_buffer(szBuf, nBufSize);
                 m_sendqueue.push(pBufferLoop);
+                //m_pio->Add_WriteEvent(this);
             }
         }
         m_sendqueuemutex.Unlock();
