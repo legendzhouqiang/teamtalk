@@ -10,6 +10,7 @@
 #include "socket_io_define.h"
 #include "io_loop.h"
 #include "../timer/Timer.hpp"
+#include <openssl/err.h>
 
 CSSLClientAsync::CSSLClientAsync(CIOLoop* pIO) : CTCPClientAsync(pIO)
 {
@@ -200,7 +201,6 @@ int32_t CSSLClientAsync::SSLConnect()
     
     //阻塞的ssl_connect可能会有一个问题，服务端如果不对此处理，可能会一直卡在SSL_connect这个接口
     //此处采用非阻塞的ssl_connect
-    
     int32_t nRet = SSL_connect(GetSSL());
     if (nRet == 1)
     {
@@ -248,24 +248,28 @@ int32_t CSSLClientAsync::ReConnectAsync()
 
 int32_t CSSLClientAsync::SendMsgAsync(const char *szBuf, int32_t nBufSize)
 {
+    CSimpleBuffer* pBufferLoop = new CSimpleBuffer();
+    pBufferLoop->Write(szBuf, nBufSize);
+    
     m_sendqueuemutex.Lock();
     if (m_sendqueue.size() != 0)
     {
         if (_GetWaitForCloseStatus() == TRUE)
         {
             SOCKET_IO_DEBUG("send ssl data error, socket will be closed.");
+            delete pBufferLoop;
+            pBufferLoop = NULL;
         }
         else
         {
             if (m_sendqueue.size() >= MAX_SEND_QUEUE_SIZE) {
                 SOCKET_IO_WARN("send ssl data error, buffer is overload.");
+                delete pBufferLoop;
+                pBufferLoop = NULL;
             }
             else
             {
-                SOCKET_IO_DEBUG("send ssl data, push data to buffer.");
-                CBufferLoop* pBufferLoop = new CBufferLoop();
-                pBufferLoop->create_buffer(nBufSize);
-                pBufferLoop->append_buffer(szBuf, nBufSize);
+                SOCKET_IO_INFO("send ssl data, push data to buffer.");
                 m_sendqueue.push(pBufferLoop);
                 //m_pio->Add_WriteEvent(this);
             }
@@ -274,25 +278,24 @@ int32_t CSSLClientAsync::SendMsgAsync(const char *szBuf, int32_t nBufSize)
         return SOCKET_IO_RESULT_OK;
     }
     m_sendqueuemutex.Unlock();
-
-    int32_t nRet = SSL_write(GetSSL(), (void*)szBuf, nBufSize);
+    
+    int32_t nRet = SSL_write(GetSSL(), (void*)pBufferLoop->GetBuffer(), pBufferLoop->GetWriteOffset());
     if ( nRet < 0)
     {
         int32_t nError = SSL_get_error(GetSSL(), nRet);
         if (SSL_ERROR_WANT_WRITE == nError || SSL_ERROR_WANT_READ == nError)
         {
-            CBufferLoop* pBufferLoop = new CBufferLoop();
-            pBufferLoop->create_buffer(nBufSize);
-            pBufferLoop->append_buffer(szBuf, nBufSize);
             m_sendqueuemutex.Lock();
             m_sendqueue.push(pBufferLoop);
             m_sendqueuemutex.Unlock();
             //有数据放入待发送队列，则注册为写事件
             m_pio->Add_WriteEvent(this);
-            SOCKET_IO_DEBUG("send ssl data, buffer is blocking, errno: %d.", nError);
+            SOCKET_IO_INFO("send ssl data, buffer is blocking, errno: %d.", nError);
         }
         else
         {
+            delete pBufferLoop;
+            pBufferLoop = NULL;
             SOCKET_IO_ERROR("send ssl data error, errno: %d.", nError);
             DoException(GetSocketID(), SOCKET_IO_SSL_SEND_FAILED);
         }
@@ -308,25 +311,32 @@ int32_t CSSLClientAsync::SendMsgAsync(const char *szBuf, int32_t nBufSize)
         {
             SOCKET_IO_ERROR("send ssl data error, errno: %d.", nError);
         }
+        delete pBufferLoop;
+        pBufferLoop = NULL;
         DoException(GetSocketID(), SOCKET_IO_SSL_SEND_FAILED);
     }
     else if (nRet != nBufSize)
     {
         int32_t nRest = nBufSize - nRet;
-        CBufferLoop* pBufferLoop = new CBufferLoop();
-        pBufferLoop->create_buffer(nRest);
-        pBufferLoop->append_buffer(szBuf + nRet, nRest);
-        
+        pBufferLoop->Read(NULL, nRet);
         m_sendqueuemutex.Lock();
         m_sendqueue.push(pBufferLoop);
         m_sendqueuemutex.Unlock();
         //有数据放入待发送队列，则注册为写事件
+        //对于ssl来说，应该不会出现此种情况
         m_pio->Add_WriteEvent(this);
-        SOCKET_IO_DEBUG("send ssl data, send size: %d, less than %d.", nRet, nBufSize);
+        SOCKET_IO_WARN("send ssl data, send size: %d, less than %d.", nRet, nBufSize);
     }
     else if (nRet == nBufSize)
     {
+        delete pBufferLoop;
+        pBufferLoop = NULL;
         SOCKET_IO_DEBUG("send ssl data successed.");
+    }
+    else
+    {
+        delete pBufferLoop;
+        pBufferLoop = NULL;
     }
     return SOCKET_IO_RESULT_OK;
 }
@@ -348,18 +358,15 @@ int32_t CSSLClientAsync::SendBufferAsync()
         }
         return nErrorCode;
     }
-    CBufferLoop* pBufferLoop = m_sendqueue.front();
+    CSimpleBuffer* pBufferLoop = m_sendqueue.front();
     m_sendqueuemutex.Unlock();
-    char* szSendBuffer = new char[pBufferLoop->get_used_size()];
-    int32_t nRealSize = 0;
-    pBufferLoop->get_buffer_tmp(szSendBuffer, pBufferLoop->get_used_size(), &nRealSize);
-    int32_t nRet = SSL_write(GetSSL(), (void*)szSendBuffer, nRealSize);
+    int32_t nRet = SSL_write(GetSSL(), (void*)pBufferLoop->GetBuffer(), pBufferLoop->GetWriteOffset());
     if ( nRet < 0)
     {
         int32_t nError = SSL_get_error(GetSSL(), nRet);
         if (SSL_ERROR_WANT_WRITE == nError || SSL_ERROR_WANT_READ == nError)
         {
-            SOCKET_IO_DEBUG("send ssl data, buffer is blocking, errno: %d.", nError);
+            SOCKET_IO_INFO("send ssl data, buffer is blocking, errno: %d.", nError);
         }
         else
         {
@@ -382,30 +389,23 @@ int32_t CSSLClientAsync::SendBufferAsync()
         _ClearSendBuffer();
         DoException(GetSocketID(), SOCKET_IO_SSL_SEND_FAILED);
     }
-    else if (nRet != nRealSize)
+    else if (nRet != pBufferLoop->GetWriteOffset())
     {
         //将未成功的数据重新放置buffer loop中，待下次发送
+        //对于ssl来说，应该不会出现此种情况
         int32_t nSize = 0;
-        pBufferLoop->get_buffer(szSendBuffer, nRet, &nSize);
-        if (nRet != nSize)
-        {
-            //一般不可能出现这种情况
-            SOCKET_IO_ERROR("send ssl data, send size: %d, less than %d, get buffer size wrong.", nRet, nRealSize);
-        }
-        else
-        {
-            SOCKET_IO_DEBUG("send ssl data, send size: %d, less than %d.", nRet, nRealSize);
-        }
+        pBufferLoop->Read(NULL, nRet);
+        SOCKET_IO_WARN("send ssl data, send size: %d, less than %d.", nRet, pBufferLoop->GetWriteOffset());
     }
     else
     {
-        SOCKET_IO_DEBUG("send ssl data from buffer successed.", nRet, nRealSize);
+        SOCKET_IO_DEBUG("send ssl data from buffer successed.");
         m_sendqueuemutex.Lock();
         delete pBufferLoop;
+        pBufferLoop = NULL;
         m_sendqueue.pop();
         m_sendqueuemutex.Unlock();
     }
-    delete []szSendBuffer;
     return nErrorCode;
 }
 
