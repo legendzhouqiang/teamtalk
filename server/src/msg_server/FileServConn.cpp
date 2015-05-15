@@ -89,6 +89,7 @@ CFileServConn* get_random_file_serv_conn()
             if (pConnTmp && pConnTmp->IsOpen())
             {
                 pConn = pConnTmp;
+                break;
             }
         }
     }
