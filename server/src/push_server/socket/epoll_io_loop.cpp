@@ -72,7 +72,7 @@ void CEpollIOLoop::Run()
 			{
 				m_waker.Recv();
 			}
-			else if (events[i].events & EPOLLIN)
+            if (events[i].events & EPOLLIN)
 			{
                 SOCKET_IO_DEBUG("socket read event.");
 				CBaseIOStream* pIOStream = _GetHandlerBySock(sock);
@@ -95,7 +95,7 @@ void CEpollIOLoop::Run()
 					epoll_ctl(m_eid, EPOLL_CTL_DEL, sock, &events[i]);
 				}
 			}//EPOLLIN
-			else if (events[i].events & EPOLLOUT)
+            if (events[i].events & EPOLLOUT)
 			{
                 SOCKET_IO_DEBUG("socket write event.");
 				CBaseIOStream* pIOStream = _GetHandlerBySock(sock);
@@ -109,7 +109,7 @@ void CEpollIOLoop::Run()
 					pIOStream->SendBufferAsync();
 				}
 			}//EPOLLOUT
-			else if (events[i].events & EPOLLERR)
+            if (events[i].events & EPOLLERR)
 			{
                 SOCKET_IO_DEBUG("socket error event.");
 				CBaseIOStream* pIOStream = _GetHandlerBySock(sock);
@@ -214,7 +214,7 @@ void CEpollIOLoop::Add_WriteEvent( CBaseIOStream* piostream )
 		{
             SOCKET_IO_DEBUG("add write event.");
 			//可写事件
-			ev.events=EPOLLOUT | EPOLLERR;
+			ev.events=EPOLLIN | EPOLLOUT | EPOLLERR;
 			epoll_ctl(m_eid, EPOLL_CTL_MOD, piostream->GetSocket(), &ev);
 		}
 		m_waker.Wake();

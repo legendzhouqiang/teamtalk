@@ -16,7 +16,7 @@ public class SystemConfigSp {
 
     public static SystemConfigSp instance() {
         if (systemConfigSp == null) {
-            synchronized (LoginSp.class) {
+            synchronized (SystemConfigSp.class) {
                 systemConfigSp = new SystemConfigSp();
             }
         }
