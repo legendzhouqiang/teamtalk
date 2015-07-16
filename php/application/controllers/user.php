@@ -190,7 +190,9 @@ class User extends TT_Controller {
 	public function _upload($filename)
 	{
 		$ch = curl_init();
-		$data = array('filename'=>'@'.$filename);
+		//$data = array('filename'=>'@'.$filename);
+		$cfile = new CurlFile($filename);
+		$data = array('filename'=> $cfile);
 		curl_setopt($ch,CURLOPT_URL,$this->config->config['msfs_url']);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
 		curl_setopt($ch,CURLOPT_POST,true);
